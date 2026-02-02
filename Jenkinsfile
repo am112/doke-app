@@ -16,7 +16,7 @@ pipeline {
 
         stage('Prepare Containers') {
             steps {
-                configFileProvider([configFile(fileId: 'my-laravel-env', variable: 'ENV_FILE')]) {
+                configFileProvider([configFile(fileId: 'laravel-env-config', variable: 'ENV_FILE')]) {
                     echo "Copying managed .env file to workspace..."
                     sh 'cp $ENV_FILE .env'
                 }
