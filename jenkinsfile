@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'my-laravel-app'
+        DOCKER_COMPOSE_FILE = './docker-compose.dev.yml'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                sh "docker-compose -f $DOCKER_COMPOSE_FILE up -d --build php-fpm"
+                sh "docker-compose -f $DOCKER_COMPOSE_FILE exec -T php-fpm composer install --no-interaction --prefer-dist"
+                sh "docker-compose -f $DOCKER_COMPOSE_FILE exec -T php-fpm php artisan test"
+                sh "docker-compose -f $DOCKER_COMPOSE_FILE down"
+            }
+        }
+
+        stage('Build Assets') {
+            steps {
+                sh "docker-compose -f $DOCKER_COMPOSE_FILE run --rm workspace npm install"
+                sh "docker-compose -f $DOCKER_COMPOSE_FILE run --rm workspace npm run build"
+            }
+        }
+
+        stage('Docker Image Build') {
+            steps {
+                sh "docker build -t $APP_NAME -f docker/common/php-fpm/Dockerfile ."
+            }
+        }
+    }
+
+    post {
+        always {
+            sh "docker system prune -f"
+        }
+    }
+}
