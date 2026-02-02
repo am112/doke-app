@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_NAME = 'my-laravel-app'
-        DOCKER_COMPOSE_FILE = './docker-compose.dev.yml'
+        DOCKER_COMPOSE_FILE = './compose.dev.yaml'
         COMPOSER_FLAGS = '--no-interaction --prefer-dist --optimize-autoloader'
     }
 
