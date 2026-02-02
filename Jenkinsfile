@@ -21,30 +21,30 @@ pipeline {
                     sh 'cp $ENV_FILE .env'
                 }
                 echo "Building and starting php-fpm container..."
-                sh "docker-compose -f $DOCKER_COMPOSE_FILE up -d --build php-fpm"
+                sh "docker compose -f $DOCKER_COMPOSE_FILE up -d --build php-fpm"
             }
         }
 
         stage('Composer Install & Tests') {
             steps {
                 echo "Installing PHP dependencies..."
-                sh "docker-compose -f $DOCKER_COMPOSE_FILE exec -T php-fpm composer install $COMPOSER_FLAGS"
+                sh "docker compose -f $DOCKER_COMPOSE_FILE exec -T php-fpm composer install $COMPOSER_FLAGS"
 
                 echo "Running Laravel tests..."
-                sh "docker-compose -f $DOCKER_COMPOSE_FILE exec -T php-fpm php artisan test"
+                sh "docker compose -f $DOCKER_COMPOSE_FILE exec -T php-fpm php artisan test"
             }
         }
 
         stage('Build Assets') {
             steps {
                 echo "Ensure php-fpm is running for Wayfinder/NPM builds..."
-                sh "docker-compose -f $DOCKER_COMPOSE_FILE up -d php-fpm"
+                sh "docker compose -f $DOCKER_COMPOSE_FILE up -d php-fpm"
 
                 echo "Installing Node.js dependencies..."
-                sh "docker-compose -f $DOCKER_COMPOSE_FILE run --rm workspace npm install"
+                sh "docker compose -f $DOCKER_COMPOSE_FILE run --rm workspace npm install"
 
                 echo "Building frontend assets..."
-                sh "docker-compose -f $DOCKER_COMPOSE_FILE run --rm workspace npm run build"
+                sh "docker compose -f $DOCKER_COMPOSE_FILE run --rm workspace npm run build"
             }
         }
 
